@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EA Inquiry Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1c2b2a;
+      --muted: #687774;
+      --line: #d7dfda;
+      --paper: #eef2ed;
+      --surface: #fff;
+      --soft: #f5f8f5;
+      --green: #087d62;
+      --green-dark: #075d4c;
+      --mint: #dcefe7;
+      --lime: #d0df58;
+      --blue: #347eab;
+      --orange: #d47840;
+      --red: #b5453d;
+      --mono: "IBM Plex Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: linear-gradient(rgba(31,57,48,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(31,57,48,.025) 1px, transparent 1px);
+      background-size: 24px 24px;
+      font-family: Manrope, "Noto Sans KR", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    .app { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 22px 0 48px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 0 0 18px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 15px; min-width: 0; }
+    .brand img { display: block; width: 82px; height: 27px; object-fit: contain; }
+    .brand-divider { width: 1px; height: 30px; background: var(--line); }
+    .brand-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; min-width: 0; }
+    .brand-title { margin: 0; font-size: 1.04rem; font-weight: 800; }
+    .record-name { max-width: min(42vw, 560px); overflow-wrap: anywhere; color: var(--green-dark); font: 700 1rem var(--mono); }
+    .brand-subtitle { margin: 3px 0 0; color: var(--muted); font: 500 .62rem var(--mono); }
+    .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 11px; min-width: 0; flex-wrap: wrap; }
+    .save-status { color: var(--muted); font: 500 .66rem var(--mono); text-align: right; }
+    .load-controls { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .load-select { width: 190px; min-width: 0; min-height: 38px; padding: 0 9px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); font-size: .7rem; }
+    .button { min-height: 38px; padding: 0 14px; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); font-size: .76rem; font-weight: 800; cursor: pointer; }
+    .button:hover { border-color: #9eb6aa; }
+    .button.primary { border-color: var(--green); color: #fff; background: var(--green); }
+    .button.primary:hover { background: var(--green-dark); }
+    .button:disabled { opacity: .55; cursor: wait; }
+    .tabs { display: flex; gap: 4px; width: fit-content; max-width: 100%; padding: 4px; margin: 18px 0 17px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.74); }
+    .tab { min-height: 37px; padding: 0 16px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font-size: .75rem; font-weight: 800; cursor: pointer; }
+    .tab[aria-selected="true"] { color: #fff; background: var(--ink); }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin: 0 0 15px; }
+    .page-heading h1 { margin: 0; font-size: 1.42rem; }
+    .page-heading h1.inquiry-title { font-size: 1.8rem; line-height: 1.1; }
+    .page-heading p { margin: 5px 0 0; color: var(--muted); font-size: .74rem; }
+    .page-index { color: var(--green); font: 600 .7rem var(--mono); white-space: nowrap; }
+    .section { padding: 17px 0 20px; border-top: 2px solid var(--ink); }
+    .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 13px; }
+    .section-head h2 { margin: 0; font-size: .9rem; font-weight: 800; }
+    .section-head h2.project-general-title { font-size: 1.4rem; line-height: 1.2; }
+    .section-head h2.section-emphasis { max-width: 100%; min-width: 0; overflow-wrap: anywhere; font-size: 1.4rem; line-height: 1.2; }
+    .section-head small { color: var(--muted); font: 500 .63rem var(--mono); }
+    .section-body { min-width: 0; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px; }
+    .field { display: block; min-width: 0; color: #42514d; font-size: .72rem; font-weight: 700; }
+    .field.wide { grid-column: span 2; }
+    .field.full { grid-column: 1 / -1; }
+    .required-mark { color: var(--red); }
+    .field > input, .field > select, .field > textarea { display: block; margin-top: 6px; }
+    .field > .inline-control { display: grid; margin-top: 6px; }
+    .field-unit { align-self: center; color: var(--muted); font: 500 .64rem var(--mono); }
+    .field input, .field select, .field textarea,
+    .scope-table input, .scope-table select,
+    .bom-table input, .bom-table select {
+      width: 100%; min-width: 0; min-height: 37px; padding: 8px 10px; border: 1px solid #cbd5cf; border-radius: 4px; outline: 0; color: var(--ink); background: #fff; font-size: .75rem;
+    }
+    .field textarea { min-height: 76px; resize: vertical; line-height: 1.55; }
+    input::placeholder, textarea::placeholder { color: #99a49f; }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(8,125,98,.11); }
+    #workspace-form.has-invalid :invalid { border-color: var(--red); }
+    #workspace-form :required:invalid { border-color: var(--red); color: var(--red); }
+    #workspace-form :required:valid { border-color: var(--ink); color: var(--ink); }
+    .field:has(:required:invalid) { color: var(--red); }
+    .field:has(:required:valid) { color: var(--ink); }
+    .field:has(:required:valid) .required-mark { color: var(--ink); }
+    .axis-table th.required-empty { color: var(--red); }
+    .axis-table th.required-filled { color: var(--ink); }
+    .scope-group { margin-top: 14px; }
+    .scope-group h3 { margin: 0; padding: 8px 10px; color: var(--green-dark); background: var(--mint); font-size: .73rem; }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+    table { width: 100%; border-collapse: collapse; }
+    .scope-table { min-width: 760px; font-size: .7rem; }
+    .scope-table th, .scope-table td { padding: 7px 8px; border-bottom: 1px solid #e8ede9; text-align: left; vertical-align: middle; }
+    .scope-table thead th { color: var(--muted); background: #f1f5f1; font: 600 .62rem var(--mono); }
+    .scope-table tbody tr:last-child td { border-bottom: 0; }
+    .scope-table td:first-child { width: 35%; min-width: 245px; font-weight: 600; }
+    .scope-table td:nth-child(2) { width: 150px; }
+    .scope-table td input, .scope-table td select { min-height: 32px; padding: 5px 8px; font-size: .68rem; }
+    .photo-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; margin-top: 10px; padding: 8px; border: 1px solid var(--line); background: var(--surface); }
+    .photo-card { position: relative; min-width: 0; margin: 0; padding: 6px; border: 1px solid var(--line); background: #fff; }
+    .photo-card img { display: block; width: 100%; height: 92px; object-fit: contain; background: var(--soft); }
+    .photo-card figcaption { margin-top: 5px; overflow-wrap: anywhere; color: var(--muted); font-size: .64rem; }
+    .photo-card button { position: absolute; top: 8px; right: 8px; }
+    .history-table { min-width: 820px; font-size: .69rem; }
+    .history-table th, .history-table td { padding: 6px; border-bottom: 1px solid #e7ece8; vertical-align: middle; }
+    .history-table thead th { color: var(--muted); background: #eaf0eb; text-align: left; font: 600 .62rem var(--mono); }
+    .history-table tbody tr:last-child td { border-bottom: 0; }
+    .history-table input { width: 100%; min-width: 0; min-height: 33px; padding: 5px 7px; border: 1px solid #cbd5cf; border-radius: 4px; outline: 0; color: var(--ink); background: #fff; font-size: .67rem; }
+    .history-table .revision-cell { width: 115px; }
+    .history-table .date-cell { width: 150px; }
+    .history-table .sender-cell { width: 180px; }
+    .layout-reference { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 3px 0 14px; border: 0; }
+    .layout-option { position: relative; display: flex; flex-direction: column; min-width: 0; height: 126px; overflow: hidden; padding: 7px; border: 1px solid var(--line); border-radius: 4px; background: #fff; cursor: pointer; }
+    .layout-option:has(input:checked) { border-color: var(--green); background: var(--mint); box-shadow: inset 0 0 0 1px var(--green); }
+    .layout-option input { position: absolute; top: 8px; right: 8px; z-index: 1; width: 16px; height: 16px; accent-color: var(--green); }
+    .layout-option input:focus-visible + figure { outline: 2px solid var(--green); outline-offset: 2px; }
+    .layout-option figure { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; min-height: 0; margin: 0; overflow: hidden; background: #fff; }
+    .layout-option img { display: block; flex: 0 0 76px; width: 100%; max-width: 100%; height: 76px; max-height: 76px; object-fit: contain; }
+    .layout-option figcaption { flex: 0 0 16px; padding-top: 3px; color: var(--muted); text-align: center; font: 500 .58rem var(--mono); }
+    .unit-list { display: grid; gap: 13px; }
+    .unit-card { min-width: 0; padding: 14px; border: 1px solid var(--line); border-top: 3px solid var(--green); border-radius: 5px; background: rgba(255,255,255,.82); }
+    .unit-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .unit-head h3 { margin: 0; font-size: .83rem; }
+    .unit-controls { display: flex; align-items: center; gap: 13px; }
+    .axis-switches { display: flex; align-items: center; gap: 10px; padding: 0; margin: 0; border: 0; }
+    .axis-switches legend { float: left; margin-right: 7px; color: var(--muted); font-size: .64rem; font-weight: 700; }
+    .axis-switches label { display: inline-flex; align-items: center; gap: 4px; color: var(--ink); font: 600 .68rem var(--mono); cursor: pointer; }
+    .axis-switches input { width: 14px; height: 14px; accent-color: var(--green); }
+    .remove-unit, .remove-row { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 4px; color: var(--red); background: #fff; font-size: 1.1rem; cursor: pointer; }
+    .axis-table { min-width: 690px; font-size: .68rem; }
+    .axis-table th, .axis-table td { padding: 6px; border-bottom: 1px solid #e8ede9; text-align: left; }
+    .axis-table thead th { color: var(--muted); background: #f1f5f1; font: 600 .62rem var(--mono); }
+    .axis-table thead th:first-child { width: 245px; }
+    .axis-table tbody th { color: #43534e; font-weight: 700; }
+    .axis-table td input, .axis-table td select { width: 100%; min-width: 118px; min-height: 33px; padding: 6px 8px; border: 1px solid #cbd5cf; border-radius: 4px; outline: 0; color: var(--ink); background: #fff; font-size: .68rem; }
+    .axis-table td input:focus, .axis-table td select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(8,125,98,.11); }
+    .axis-table td input:disabled, .axis-table td select:disabled { border-color: transparent; background: #f5f7f5; }
+    .unit-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px 12px; margin-top: 13px; }
+    .subsection-label { grid-column: 1 / -1; margin: 3px 0 -2px; padding-top: 8px; border-top: 1px solid var(--line); color: var(--green-dark); font: 600 .64rem var(--mono); text-transform: uppercase; }
+    .subsection-label:first-child { border-top: 0; }
+    .inline-control { display: grid; grid-template-columns: minmax(0, 1fr) 78px; gap: 6px; }
+    .unit-add { margin-top: 12px; }
+    .common-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px; }
+    .bom-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 15px 0 10px; }
+    .bom-count { color: var(--muted); font: 500 .65rem var(--mono); }
+    .bom-table { min-width: 1040px; font-size: .69rem; }
+    .bom-table th, .bom-table td { padding: 6px; border-bottom: 1px solid #e7ece8; vertical-align: middle; }
+    .bom-table thead th { position: sticky; top: 0; z-index: 1; color: var(--muted); background: #eaf0eb; text-align: left; font: 600 .62rem var(--mono); }
+    .bom-table tbody tr:last-child td { border-bottom: 0; }
+    .bom-table input { min-height: 33px; padding: 5px 7px; font-size: .67rem; }
+    .bom-table .unit-cell { width: 76px; }
+    .bom-table .no-cell { width: 70px; }
+    .bom-table .part-cell { width: 136px; }
+    .bom-table .type-cell { min-width: 240px; }
+    .bom-table .description-cell { min-width: 170px; }
+    .bom-table .qty-cell { width: 86px; }
+    .bom-table .remark-cell { min-width: 150px; }
+    .bom-table .delete-cell { width: 42px; text-align: center; }
+    .bom-table .unit-input, .bom-table .no-input, .bom-table .qty-input { text-align: center; }
+    .empty-state { padding: 28px; color: var(--muted); text-align: center; font-size: .75rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 960px) {
+      .app { width: min(100% - 28px, 820px); padding-top: 15px; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .unit-grid, .common-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout-reference { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .app { width: calc(100% - 20px); padding-bottom: 26px; }
+      .topbar { align-items: flex-start; flex-wrap: wrap; }
+      .brand { gap: 9px; }
+      .brand img { width: 68px; }
+      .brand-title { font-size: .92rem; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .save-status { flex: 1 1 100%; text-align: left; }
+      .load-controls { flex: 1; }
+      .load-select { width: 100%; }
+      .tabs { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .tab { padding: 0 7px; }
+      .page-heading { align-items: flex-start; }
+      .page-heading h1 { font-size: 1.18rem; }
+      .page-heading h1.inquiry-title { font-size: 1.55rem; }
+      .form-grid, .unit-grid, .common-grid { grid-template-columns: 1fr; }
+      .field.wide, .field.full { grid-column: auto; }
+      .layout-reference { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout-reference figure { height: 105px; }
+      .unit-card { padding: 10px; }
+      .unit-head { align-items: flex-start; flex-direction: column; }
+      .unit-controls { width: 100%; justify-content: space-between; }
+      .axis-switches { gap: 7px; }
+      .axis-switches legend { margin-right: 2px; }
+      .section { padding-top: 13px; }
+      .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .bom-toolbar { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/image7.png" alt="Festo" />
+        <span class="brand-divider" aria-hidden="true"></span>
+        <div><div class="brand-heading"><p class="brand-title">EA Inquiry Sheet</p><span class="record-name" id="record-name" hidden></span></div><p class="brand-subtitle">ENGINEERING APPLICATION · CUSTOMER INQUIRY</p></div>
+      </div>
+      <div class="header-actions">
+        <span class="save-status" id="save-status" aria-live="polite">저장된 Inquiry 없음</span>
+        <div class="load-controls">
+          <label class="sr-only" for="saved-inquiry-select">Saved inquiry</label>
+          <select class="load-select" id="saved-inquiry-select"><option value="">Select saved inquiry</option></select>
+          <button class="button" id="load-inquiry-button" type="button" disabled>Load</button>
+        </div>
+        <button class="button primary" type="submit" form="workspace-form" id="save-button">Save Inquiry</button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Inquiry 페이지">
+      <button class="tab" id="inquiry-tab" type="button" role="tab" aria-controls="inquiry-page" aria-selected="true" data-page="inquiry">01 &nbsp; EA Inquiry</button>
+      <button class="tab" id="bom-tab" type="button" role="tab" aria-controls="bom-page" aria-selected="false" data-page="bom">02 &nbsp; BOM</button>
+    </nav>
+
+    <form id="workspace-form" novalidate>
+      <section class="page active" id="inquiry-page" role="tabpanel" aria-labelledby="inquiry-tab">
+        <div class="page-heading">
+          <div><h1 class="inquiry-title">EA Inquiry</h1><p>Project, application and equipment requirements</p></div>
+          <span class="page-index">SHEET 01 / 02</span>
+        </div>
+
+        <section class="section">
+          <div class="section-head"><h2 class="project-general-title">Project General Information</h2><small>REVISION &amp; PROJECT DETAILS</small></div>
+          <div class="form-grid">
+            <label class="field">Revision No.<input data-project="revision" type="text" placeholder="e.g. Rev.01" /></label>
+            <label class="field">Date<input data-project="revisionDate" type="date" /></label>
+            <label class="field">Proposal No.<input data-project="proposalNo" type="text" /></label>
+            <label class="field">KR_CS No.<input data-project="krCsNo" type="text" /></label>
+            <label class="field">SE / AE / Mecha CS name<input data-project="owner" type="text" /></label>
+            <label class="field">Customer name / No. <span class="required-mark">*</span><input data-project="customer" type="text" required autocomplete="organization" /></label>
+            <label class="field">End-User<input data-project="endUser" type="text" /></label>
+            <label class="field">Opportunity name <span class="required-mark">*</span><input data-project="opportunity" type="text" required /></label>
+            <label class="field">Mosaic opportunity No. <span class="required-mark">*</span><input data-project="mosaicNo" type="text" required /></label>
+            <label class="field">Yearly expected potential <span class="required-mark">*</span><span class="inline-control"><input data-project="yearlyPotential" type="number" min="0" step="any" required /><span class="field-unit">MKRW</span></span></label>
+            <label class="field">Quantity per year <span class="required-mark">*</span><span class="inline-control"><input data-project="quantityPerYear" type="number" min="1" step="1" required /><span class="field-unit">EA</span></span></label>
+            <label class="field">Target price <span class="required-mark">*</span><span class="inline-control"><input data-project="targetPrice" type="number" min="0" step="any" required /><span class="field-unit">MKRW</span></span></label>
+            <label class="field">Competitor<input data-project="competitor" type="text" /></label>
+            <label class="field">Expected delivery date <span class="required-mark">*</span><input data-project="deliveryDate" type="date" required /></label>
+            <label class="field full">Explanation of application and machine <span class="required-mark">*</span><textarea data-project="application" required></textarea></label>
+            <label class="field full">Photo attachment<input id="photo-file" type="file" accept="image/*" multiple /></label>
+            <div class="photo-preview field full" id="photo-preview" hidden></div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2 class="section-emphasis">Additional Request &amp; Scope of Supply</h2><small>IN-HOUSE / SITE WORK</small></div>
+          <div id="internal-scope" class="scope-group"></div>
+          <div id="site-scope" class="scope-group"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2 class="section-emphasis">Request Information</h2><small>UP TO 5 EQUIPMENT UNITS</small></div>
+          <fieldset class="layout-reference" aria-label="Sample layout 선택">
+            <legend class="sr-only">Sample layout</legend>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-1" /><figure><img src="assets/image1.png" alt="장비 레이아웃 예시 1" /><figcaption>Layout 01</figcaption></figure></label>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-2" /><figure><img src="assets/image2.png" alt="장비 레이아웃 예시 2" /><figcaption>Layout 02</figcaption></figure></label>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-3" /><figure><img src="assets/image3.png" alt="장비 레이아웃 예시 3" /><figcaption>Layout 03</figcaption></figure></label>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-4" /><figure><img src="assets/image4.png" alt="장비 레이아웃 예시 4" /><figcaption>Layout 04</figcaption></figure></label>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-5" /><figure><img src="assets/image5.png" alt="장비 레이아웃 예시 5" /><figcaption>Layout 05</figcaption></figure></label>
+            <label class="layout-option"><input type="radio" name="sampleLayout" value="layout-6" /><figure><img src="assets/image6.png" alt="회전축 레이아웃 예시" /><figcaption>Layout 06</figcaption></figure></label>
+          </fieldset>
+          <div class="unit-list" id="unit-list"></div>
+          <button class="button unit-add" id="add-unit" type="button">+ Add Unit</button>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2 class="section-emphasis">PLC, Order &amp; Additional Information</h2><small>COMMON REQUIREMENTS</small></div>
+          <div class="common-grid">
+            <label class="field">Requested PLC<input data-common="plc" type="text" placeholder="Maker, product name" /></label>
+            <label class="field">Control mode<input data-common="controlMode" type="text" placeholder="Position, speed, torque, etc." /></label>
+            <label class="field">Fieldbus<input data-common="fieldbus" type="text" placeholder="DIO, PN, EP, EC, Modbus, etc." /></label>
+            <label class="field">Requested commissioning<input data-common="commissioning" type="text" placeholder="O/X, days" /></label>
+            <label class="field">Requested assembly<input data-common="assembly" type="text" placeholder="O/X" /></label>
+            <label class="field">On-site installation support<input data-common="siteSupport" type="text" placeholder="O/X" /></label>
+            <label class="field full">Additional request or information<textarea data-common="additionalInfo"></textarea></label>
+            <label class="field full">Remark<textarea data-common="remark"></textarea></label>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2 class="section-emphasis">History &amp; Information of Project</h2><small>AE / MECHA CS</small></div>
+          <div class="bom-toolbar">
+            <span class="bom-count" id="history-count">00 REVISIONS</span>
+            <button class="button" type="button" id="add-history-row">+ Add revision</button>
+          </div>
+          <div class="table-scroll">
+            <table class="history-table">
+              <thead><tr><th>Revision No.</th><th>Date</th><th>Sender Name</th><th>Description</th><th aria-label="삭제"></th></tr></thead>
+              <tbody id="history-body"></tbody>
+            </table>
+            <div class="empty-state" id="history-empty" hidden>No revision history</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="bom-page" role="tabpanel" aria-labelledby="bom-tab">
+        <div class="page-heading">
+          <div><h1>Bill of Materials</h1><p>Itemized product and quantity list</p></div>
+          <span class="page-index">SHEET 02 / 02</span>
+        </div>
+        <section class="section">
+          <div class="section-head"><h2>BOM List</h2><small>UNIT / PART NUMBER / PRODUCT / QTY</small></div>
+          <div class="bom-toolbar">
+            <span class="bom-count" id="bom-count">0 ITEMS</span>
+            <button class="button" type="button" id="add-bom-row">+ Add item</button>
+          </div>
+          <div class="table-scroll">
+            <table class="bom-table">
+              <thead><tr><th>Unit</th><th>No.</th><th>Part No.</th><th>Type code / Product name</th><th>Description</th><th>Qty.</th><th>Remark</th><th aria-label="삭제"></th></tr></thead>
+              <tbody id="bom-body"></tbody>
+            </table>
+            <div class="empty-state" id="bom-empty" hidden>No BOM items</div>
+          </div>
+        </section>
+      </section>
+    </form>
+  </main>
+
+  <template id="unit-template">
+    <section class="unit-card">
+      <div class="unit-head">
+        <h3 class="unit-title">Unit 01</h3>
+        <div class="unit-controls">
+          <fieldset class="axis-switches">
+            <legend>Active axes</legend>
+            <label><input type="checkbox" data-axis-toggle="X" checked />X</label>
+            <label><input type="checkbox" data-axis-toggle="Y" />Y</label>
+            <label><input type="checkbox" data-axis-toggle="Z" />Z</label>
+          </fieldset>
+          <button class="remove-unit" type="button" aria-label="Unit 삭제" title="Unit 삭제">×</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="axis-table">
+          <thead><tr><th>Axis requirements</th><th>X</th><th>Y</th><th>Z</th></tr></thead>
+          <tbody>
+            <tr><th>*Axis type</th><td><select data-axis-field="axisType" data-axis="X" data-required="true" aria-label="X축 타입"><option value="">Select type</option><option>Belt drive</option><option>Spindle drive</option><option>Rotary drive</option><option>P.Cylinder</option><option>Mini slide</option><option>Other</option></select></td><td><select data-axis-field="axisType" data-axis="Y" data-required="true" aria-label="Y축 타입" disabled><option value="">Select type</option><option>Belt drive</option><option>Spindle drive</option><option>Rotary drive</option><option>P.Cylinder</option><option>Mini slide</option><option>Other</option></select></td><td><select data-axis-field="axisType" data-axis="Z" data-required="true" aria-label="Z축 타입" disabled><option value="">Select type</option><option>Belt drive</option><option>Spindle drive</option><option>Rotary drive</option><option>P.Cylinder</option><option>Mini slide</option><option>Other</option></select></td></tr>
+            <tr><th>*Requested product family</th><td><input data-axis-field="productFamily" data-axis="X" data-required="true" aria-label="X축 제품군" disabled /></td><td><input data-axis-field="productFamily" data-axis="Y" data-required="true" aria-label="Y축 제품군" disabled /></td><td><input data-axis-field="productFamily" data-axis="Z" data-required="true" aria-label="Z축 제품군" disabled /></td></tr>
+            <tr><th>*Mounting motor</th><td><select data-axis-field="motorMount" data-axis="X" data-required="true" aria-label="X축 모터 장착" disabled><option value="">Select</option><option>Axial</option><option>Parallel</option></select></td><td><select data-axis-field="motorMount" data-axis="Y" data-required="true" aria-label="Y축 모터 장착" disabled><option value="">Select</option><option>Axial</option><option>Parallel</option></select></td><td><select data-axis-field="motorMount" data-axis="Z" data-required="true" aria-label="Z축 모터 장착" disabled><option value="">Select</option><option>Axial</option><option>Parallel</option></select></td></tr>
+            <tr><th>*Stroke (mm)</th><td><input type="number" min="0" step="any" data-axis-field="stroke" data-axis="X" data-required="true" aria-label="X축 Stroke (mm)" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="stroke" data-axis="Y" data-required="true" aria-label="Y축 Stroke (mm)" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="stroke" data-axis="Z" data-required="true" aria-label="Z축 Stroke (mm)" disabled /></td></tr>
+            <tr><th>*Velocity (m/s)</th><td><input type="number" min="0" step="any" data-axis-field="velocity" data-axis="X" data-required="true" aria-label="X축 Velocity (m/s)" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="velocity" data-axis="Y" data-required="true" aria-label="Y축 Velocity (m/s)" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="velocity" data-axis="Z" data-required="true" aria-label="Z축 Velocity (m/s)" disabled /></td></tr>
+            <tr><th>Acc./Dec. (m/s²)</th><td><input type="number" min="0" step="any" data-axis-field="acceleration" data-axis="X" aria-label="X축 Acceleration" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="acceleration" data-axis="Y" aria-label="Y축 Acceleration" disabled /></td><td><input type="number" min="0" step="any" data-axis-field="acceleration" data-axis="Z" aria-label="Z축 Acceleration" disabled /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="unit-grid">
+        <p class="subsection-label">Mechanical requirements</p>
+        <label class="field">*Assembly type<select data-field="assemblyType" required><option value="">Select</option><option>Gantry</option><option>Cantilever</option><option>Other</option></select></label>
+        <label class="field">Base mounting position<select data-field="mountingPosition"><option value="">Select</option><option>Horizontal</option><option>Vertical</option><option>Wall</option><option>Other</option></select></label>
+        <label class="field">*Work load (kg)<input type="number" min="0" step="any" data-field="workload" required /></label>
+        <label class="field">*Repetition accuracy (± mm)<input type="number" min="0" step="any" data-field="accuracy" required /></label>
+        <label class="field">*Additional external force<span class="inline-control"><input type="number" step="any" data-field="externalForce" required /><select data-field="forceUnit" aria-label="External force unit"><option>N</option><option>kgf</option></select></span></label>
+        <label class="field">*Work size (W × D × H mm)<input type="text" data-field="workSize" placeholder="W × D × H" required /></label>
+        <label class="field">*(Best) Mass distance (X × Y × Z mm)<input type="text" data-field="massDistance" placeholder="X × Y × Z" required /></label>
+        <label class="field">*Cycle time (sec)<span class="inline-control"><input type="number" min="0" step="any" data-field="cycleTime" required /><select data-field="cycleDirection" aria-label="Cycle time type"><option>Round trip</option><option>One way</option></select></span></label>
+        <label class="field">Pause time (sec)<input type="number" min="0" step="any" data-field="pauseTime" /></label>
+        <label class="field">Compensation kit<select data-field="compensationKit"><option value="">Select</option><option>O</option><option>X</option></select></label>
+        <label class="field">External guide<select data-field="externalGuide"><option value="">Select</option><option>O</option><option>X</option></select></label>
+        <label class="field">Sensor type<input data-field="sensorType" placeholder="Festo / 3rd party, NO/NC, NPN/PNP" /></label>
+        <p class="subsection-label">Motor / controller</p>
+        <label class="field">*Requested motor type<input data-field="motorType" required /></label>
+        <label class="field">*Input voltage<input data-field="inputVoltage" placeholder="AC/DC, 1Phase/3Phase" required /></label>
+        <label class="field">Cable length (m)<input type="number" min="0" step="any" data-field="cableLength" /></label>
+        <label class="field">*Reducer<input data-field="reducer" placeholder="O/X or maker" required /></label>
+        <label class="field">Encoder type<select data-field="encoderType"><option value="">Select</option><option value="Single turn">Single turn</option><option value="Multi turn">Multi turn</option></select></label>
+        <label class="field">Brake type<input data-field="brakeType" placeholder="O/X" /></label>
+      </div>
+    </section>
+  </template>
+
+  <script>
+    const storageKey = 'ea-inquiry-sheet-web-v1';
+    const recordsStorageKey = 'ea-inquiry-sheet-records-v1';
+    const scopeOptions = ['N/A', 'Requested', 'Not requested'];
+    const scopeItems = {
+      internal: ['Assembly', 'Inspection', 'Test', 'Motor drive parameter installation', 'PLC software installation', 'Electric box production', 'Other in-house request'],
+      site: ['On-site assembly and installation', 'Commissioning (PLC program)', 'Commissioning (motor drive parameters)', 'Mass-production standby', 'Other site request']
+    };
+    const initialBom = [
+      { unit: 1, no: 1, part: '5266781', type: 'CPX-E-CEC-M1', description: '컨트롤러', qty: 1 },
+      { unit: 1, no: 2, part: '4080492', type: 'CPX-E-16DI', description: '입력 모듈', qty: 2 },
+      { unit: 1, no: 3, part: '4080491', type: 'CPX-E-8DO', description: '출력 모듈', qty: 3 },
+      { unit: 1, no: 4, part: '552116', type: 'CAMI-C', description: '팬던트 인터페이스', qty: 1 },
+      { unit: 1, no: 5, part: '555676', type: 'CAMF-B-M25-G4', description: '팬던트 플러그', qty: 1 },
+      { unit: 1, no: 6, part: '8126916', type: 'NEBC-R3Z12G20-KH-5-N-SBS-RSG17-ET-S1', description: '티칭펜던트 케이블', qty: 1 },
+      { unit: 1, no: 7, part: '8126915', type: 'CDSA-D3-RV', description: '티칭펜던트', qty: 1 },
+      { unit: 1, no: 8, part: '1509036', type: 'EMCA-EC-67-M-1TMB-EC-S1', description: '일체형 모터', qty: 3 },
+      { unit: 1, no: 9, part: '8034242', type: 'NEKM-C-20', description: '모터 플러그', qty: 3 },
+      { unit: 1, no: 10, part: '4977492', type: 'NEBM-L4G2-E-10-N-LE2', description: '전원케이블', qty: 3 },
+      { unit: 1, no: 11, part: '4977493', type: 'NEBM-L5G6-E-10-N-LE6', description: 'STO케이블', qty: 3 },
+      { unit: 1, no: 12, part: '23414420', type: 'NEBC-D12W4-ES-5-S-R3W4-ET-SA3162246KR', description: 'ㄱ 자형 통신케이블', qty: 1 },
+      { unit: 1, no: 13, part: '23350362', type: 'NEBC-D12W4-ES-2-S-D12W4-ET-SA3147227KR', description: 'ㄱ 자형 통신케이블', qty: 2 },
+      { unit: 2, no: 1, part: '1509036', type: 'EMCA-EC-67-M-1TMB-DIO-S1', description: '일체형 모터', qty: 3 },
+      { unit: 2, no: 6, part: '8034242', type: 'NEKM-C-20', description: '모터 플러그', qty: 3 },
+      { unit: 2, no: 3, part: '4977492', type: 'NEBM-L4G2-E-10-N-LE2', description: '전원케이블', qty: 3 },
+      { unit: 2, no: 5, part: '4977493', type: 'NEBM-L5G6-E-10-N-LE6', description: 'STO케이블', qty: 3 },
+      { unit: 2, no: 4, part: '4977494', type: 'NEBM-L5G18-E-10-N-LE18', description: 'DIO 케이블', qty: 3 }
+    ];
+    const initialHistory = [{ revision: 'Rev.01', date: '2026-01-28', sender: 'AE 박병준', description: 'Inquiry sheet 1차버젼 송부.' }];
+    const form = document.getElementById('workspace-form');
+    const unitList = document.getElementById('unit-list');
+    const bomBody = document.getElementById('bom-body');
+    const historyBody = document.getElementById('history-body');
+    let attachedPhotos = [];
+
+    function renderScope(containerId, items, prefix) {
+      const container = document.getElementById(containerId);
+      const heading = document.createElement('h3');
+      heading.textContent = prefix === 'internal' ? 'In-house work' : 'Site work';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-scroll';
+      const table = document.createElement('table');
+      table.className = 'scope-table';
+      table.innerHTML = '<thead><tr><th>Scope item</th><th>Requested</th><th>Details</th></tr></thead>';
+      const body = document.createElement('tbody');
+      items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        const title = document.createElement('td');
+        title.textContent = item;
+        const statusCell = document.createElement('td');
+        const select = document.createElement('select');
+        select.dataset.scopeStatus = `${prefix}-${index}`;
+        select.setAttribute('aria-label', `${item} requested status`);
+        scopeOptions.forEach(optionText => {
+          const option = document.createElement('option');
+          option.value = optionText;
+          option.textContent = optionText;
+          select.append(option);
+        });
+        statusCell.append(select);
+        const detailsCell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.dataset.scopeDetails = `${prefix}-${index}`;
+        input.setAttribute('aria-label', `${item} details`);
+        detailsCell.append(input);
+        row.append(title, statusCell, detailsCell);
+        body.append(row);
+      });
+      table.append(body);
+      wrapper.append(table);
+      container.replaceChildren(heading, wrapper);
+    }
+
+    function updateAxisState(card) {
+      const toggles = [...card.querySelectorAll('[data-axis-toggle]')];
+      const active = toggles.filter(toggle => toggle.checked).map(toggle => toggle.dataset.axisToggle);
+      toggles[0].setCustomValidity(active.length ? '' : 'X, Y, Z 중 사용할 축을 하나 이상 선택해 주세요.');
+      card.querySelectorAll('[data-axis-field]').forEach(field => {
+        const enabled = active.includes(field.dataset.axis);
+        field.disabled = !enabled;
+        field.required = enabled && field.dataset.required === 'true';
+      });
+      card.querySelectorAll('.axis-table tbody tr').forEach(row => {
+        const heading = row.querySelector('th');
+        if (!heading.textContent.trim().startsWith('*')) return;
+        const requiredFields = [...row.querySelectorAll('[data-axis-field]:required')];
+        const complete = active.length > 0 && requiredFields.length > 0 && requiredFields.every(field => field.validity.valid);
+        heading.classList.toggle('required-empty', !complete);
+        heading.classList.toggle('required-filled', complete);
+      });
+    }
+
+    function addUnit(savedUnit = null) {
+      if (unitList.children.length >= 5) return;
+      const card = document.getElementById('unit-template').content.firstElementChild.cloneNode(true);
+      const number = unitList.children.length + 1;
+      card.querySelector('.unit-title').textContent = `Unit ${String(number).padStart(2, '0')}`;
+      card.querySelector('.remove-unit').hidden = number === 1;
+      const savedAxes = savedUnit?.axes || ['X'];
+      card.querySelectorAll('[data-axis-toggle]').forEach(toggle => {
+        toggle.checked = savedAxes.includes(toggle.dataset.axisToggle);
+        toggle.addEventListener('change', () => updateAxisState(card));
+      });
+      card.querySelectorAll('[data-axis-field]').forEach(field => {
+        const key = `${field.dataset.axisField}.${field.dataset.axis}`;
+        if (savedUnit?.axisFields && Object.hasOwn(savedUnit.axisFields, key)) field.value = savedUnit.axisFields[key];
+        field.addEventListener('input', () => updateAxisState(card));
+        field.addEventListener('change', () => updateAxisState(card));
+      });
+      card.querySelectorAll('[data-field]').forEach(field => {
+        if (savedUnit?.fields && Object.hasOwn(savedUnit.fields, field.dataset.field)) field.value = savedUnit.fields[field.dataset.field];
+      });
+      card.querySelector('.remove-unit').addEventListener('click', () => {
+        card.remove();
+        [...unitList.children].forEach((unit, index) => {
+          unit.querySelector('.unit-title').textContent = `Unit ${String(index + 1).padStart(2, '0')}`;
+          unit.querySelector('.remove-unit').hidden = index === 0;
+        });
+        document.getElementById('add-unit').disabled = unitList.children.length >= 5;
+      });
+      updateAxisState(card);
+      unitList.append(card);
+      document.getElementById('add-unit').disabled = unitList.children.length >= 5;
+    }
+
+    const bomFields = [
+      ['unit', 'number', 'unit-cell unit-input'],
+      ['no', 'number', 'no-cell no-input'],
+      ['part', 'text', 'part-cell'],
+      ['type', 'text', 'type-cell'],
+      ['description', 'text', 'description-cell'],
+      ['qty', 'number', 'qty-cell qty-input'],
+      ['remark', 'text', 'remark-cell']
+    ];
+
+    function addBomRow(item = {}) {
+      const row = document.createElement('tr');
+      bomFields.forEach(([key, type, className]) => {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = type;
+        input.className = className;
+        input.dataset.bomField = key;
+        input.value = item[key] ?? '';
+        if (type === 'number') { input.min = '0'; input.step = 'any'; }
+        input.setAttribute('aria-label', `BOM ${key}`);
+        cell.append(input);
+        row.append(cell);
+      });
+      const actionCell = document.createElement('td');
+      actionCell.className = 'delete-cell';
+      const remove = document.createElement('button');
+      remove.className = 'remove-row';
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.title = '행 삭제';
+      remove.setAttribute('aria-label', 'BOM 행 삭제');
+      remove.addEventListener('click', () => { row.remove(); updateBomCount(); });
+      actionCell.append(remove);
+      row.append(actionCell);
+      bomBody.append(row);
+      updateBomCount();
+    }
+
+    function updateBomCount() {
+      const count = bomBody.children.length;
+      document.getElementById('bom-count').textContent = `${String(count).padStart(2, '0')} ITEMS`;
+      document.getElementById('bom-empty').hidden = count !== 0;
+    }
+
+    function addHistoryRow(item = {}) {
+      const row = document.createElement('tr');
+      [['revision', 'text', 'revision-cell'], ['date', 'date', 'date-cell'], ['sender', 'text', 'sender-cell'], ['description', 'text', '']].forEach(([key, type, className]) => {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = type;
+        input.className = className;
+        input.dataset.historyField = key;
+        input.value = item[key] ?? '';
+        input.setAttribute('aria-label', `History ${key}`);
+        cell.append(input);
+        row.append(cell);
+      });
+      const action = document.createElement('td');
+      action.className = 'delete-cell';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove-row';
+      remove.textContent = '×';
+      remove.title = '이력 행 삭제';
+      remove.setAttribute('aria-label', '이력 행 삭제');
+      remove.addEventListener('click', () => { row.remove(); updateHistoryCount(); });
+      action.append(remove);
+      row.append(action);
+      historyBody.append(row);
+      updateHistoryCount();
+    }
+
+    function updateHistoryCount() {
+      const count = historyBody.children.length;
+      document.getElementById('history-count').textContent = `${String(count).padStart(2, '0')} REVISIONS`;
+      document.getElementById('history-empty').hidden = count !== 0;
+    }
+
+    function renderPhotos() {
+      const preview = document.getElementById('photo-preview');
+      preview.replaceChildren();
+      preview.hidden = attachedPhotos.length === 0;
+      attachedPhotos.forEach(photo => {
+        const card = document.createElement('figure');
+        card.className = 'photo-card';
+        const image = document.createElement('img');
+        image.src = photo.data;
+        image.alt = photo.name;
+        const caption = document.createElement('figcaption');
+        caption.textContent = photo.name;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-row';
+        remove.dataset.removePhoto = photo.id;
+        remove.textContent = '×';
+        remove.title = '사진 제거';
+        remove.setAttribute('aria-label', `${photo.name} 제거`);
+        card.append(image, caption, remove);
+        preview.append(card);
+      });
+    }
+
+    async function compressPhoto(file) {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1280 / bitmap.width, 960 / bitmap.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext('2d');
+      context.fillStyle = '#fff';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .78));
+      if (!blob) throw new Error('사진을 압축하지 못했습니다.');
+      const data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => resolve(reader.result));
+        reader.addEventListener('error', () => reject(new Error('사진을 읽지 못했습니다.')));
+        reader.readAsDataURL(blob);
+      });
+      return { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, name: file.name, data };
+    }
+
+    function makeRecordName(project) {
+      const opportunity = (project.opportunity || '').trim();
+      const revision = (project.revision || '').trim();
+      return [opportunity, revision].filter(Boolean).join('_');
+    }
+
+    function readSavedInquiries() {
+      try {
+        const records = JSON.parse(localStorage.getItem(recordsStorageKey) || '{}');
+        return records && typeof records === 'object' && !Array.isArray(records) ? records : {};
+      } catch { return {}; }
+    }
+
+    function migrateLegacyInquiry() {
+      const stored = localStorage.getItem(storageKey);
+      if (!stored) return '';
+      let legacy;
+      try { legacy = JSON.parse(stored); } catch { return stored; }
+      if (!legacy || typeof legacy !== 'object' || !legacy.project) return stored;
+      const recordName = legacy.recordName || makeRecordName(legacy.project);
+      if (!recordName) return '';
+      const records = readSavedInquiries();
+      records[recordName] = { ...legacy, recordName };
+      localStorage.setItem(recordsStorageKey, JSON.stringify(records));
+      localStorage.setItem(storageKey, recordName);
+      return recordName;
+    }
+
+    function renderSavedInquiries(selectedName = '') {
+      const select = document.getElementById('saved-inquiry-select');
+      const records = readSavedInquiries();
+      select.replaceChildren(new Option('Select saved inquiry', ''));
+      Object.entries(records)
+        .sort((first, second) => new Date(second[1].savedAt || 0) - new Date(first[1].savedAt || 0))
+        .forEach(([name]) => select.add(new Option(name, name)));
+      select.value = Object.hasOwn(records, selectedName) ? selectedName : '';
+      document.getElementById('load-inquiry-button').disabled = !select.value;
+    }
+
+    function loadSelectedInquiry() {
+      const name = document.getElementById('saved-inquiry-select').value;
+      const saved = readSavedInquiries()[name];
+      if (!name || !saved) return;
+      try {
+        localStorage.setItem(storageKey, name);
+        form.classList.remove('has-invalid');
+        restoreWorkspace({ ...saved, recordName: saved.recordName || name });
+        showPage('inquiry');
+        document.getElementById('save-status').textContent = `Loaded ${name}`;
+      } catch {
+        document.getElementById('save-status').textContent = 'Inquiry를 불러오지 못했습니다';
+      }
+    }
+
+    function showRecordName(recordName) {
+      const label = document.getElementById('record-name');
+      label.textContent = recordName || '';
+      label.hidden = !recordName;
+    }
+
+    function collectWorkspace() {
+      const project = Object.fromEntries([...document.querySelectorAll('[data-project]')].map(field => [field.dataset.project, field.value.trim()]));
+      const scopes = [...Object.keys(scopeItems)].flatMap(group => scopeItems[group].map((_, index) => {
+        const key = `${group}-${index}`;
+        return { key, status: document.querySelector(`[data-scope-status="${key}"]`).value, details: document.querySelector(`[data-scope-details="${key}"]`).value.trim() };
+      }));
+      const units = [...unitList.children].map(card => ({
+        axes: [...card.querySelectorAll('[data-axis-toggle]:checked')].map(toggle => toggle.dataset.axisToggle),
+        axisFields: Object.fromEntries([...card.querySelectorAll('[data-axis-field]')].filter(field => !field.disabled).map(field => [`${field.dataset.axisField}.${field.dataset.axis}`, field.value.trim()])),
+        fields: Object.fromEntries([...card.querySelectorAll('[data-field]')].map(field => [field.dataset.field, field.value.trim()]))
+      }));
+      const common = Object.fromEntries([...document.querySelectorAll('[data-common]')].map(field => [field.dataset.common, field.value.trim()]));
+      const bom = [...bomBody.rows].map(row => Object.fromEntries([...row.querySelectorAll('[data-bom-field]')].map(field => [field.dataset.bomField, field.type === 'number' && field.value !== '' ? Number(field.value) : field.value.trim()])));
+      const history = [...historyBody.rows].map(row => Object.fromEntries([...row.querySelectorAll('[data-history-field]')].map(field => [field.dataset.historyField, field.value.trim()])));
+      const sampleLayout = document.querySelector('[name="sampleLayout"]:checked')?.value || '';
+      const recordName = makeRecordName(project);
+      return { recordName, project, scopes, units, common, bom, history, sampleLayout, photos: attachedPhotos, savedAt: new Date().toISOString() };
+    }
+
+    function restoreWorkspace(saved) {
+      Object.entries(saved.project || {}).forEach(([key, value]) => {
+        const field = document.querySelector(`[data-project="${key}"]`);
+        if (field) field.value = value;
+      });
+      (saved.scopes || []).forEach(item => {
+        const status = document.querySelector(`[data-scope-status="${item.key}"]`);
+        const details = document.querySelector(`[data-scope-details="${item.key}"]`);
+        if (status) status.value = item.status;
+        if (details) details.value = item.details;
+      });
+      (saved.common ? Object.entries(saved.common) : []).forEach(([key, value]) => {
+        const field = document.querySelector(`[data-common="${key}"]`);
+        if (field) field.value = value;
+      });
+      document.querySelectorAll('[name="sampleLayout"]').forEach(input => { input.checked = input.value === saved.sampleLayout; });
+      unitList.replaceChildren();
+      (saved.units?.length ? saved.units : [{}]).slice(0, 5).forEach(unit => addUnit(unit));
+      bomBody.replaceChildren();
+      (saved.bom || initialBom).forEach(item => addBomRow(item));
+      historyBody.replaceChildren();
+      (saved.history || initialHistory).forEach(item => addHistoryRow(item));
+      attachedPhotos = saved.photos || (saved.photo ? [{ ...saved.photo, id: saved.photo.id || `${Date.now()}-restored` }] : []);
+      renderPhotos();
+      const date = new Date(saved.savedAt);
+      const recordName = saved.recordName || makeRecordName(saved.project || {});
+      showRecordName(recordName);
+      document.getElementById('save-status').textContent = recordName ? `Loaded ${recordName}` : `Saved ${date.toLocaleDateString('ko-KR')}`;
+    }
+
+    function showPage(name) {
+      document.querySelectorAll('.tab').forEach(tab => tab.setAttribute('aria-selected', String(tab.dataset.page === name)));
+      document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === `${name}-page`));
+      if (name === 'bom') document.getElementById('bom-tab').focus({ preventScroll: true });
+    }
+
+    renderScope('internal-scope', scopeItems.internal, 'internal');
+    renderScope('site-scope', scopeItems.site, 'site');
+    addUnit();
+    initialBom.forEach(item => addBomRow(item));
+    initialHistory.forEach(item => addHistoryRow(item));
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => showPage(tab.dataset.page)));
+    document.getElementById('saved-inquiry-select').addEventListener('change', event => {
+      document.getElementById('load-inquiry-button').disabled = !event.target.value;
+    });
+    document.getElementById('load-inquiry-button').addEventListener('click', loadSelectedInquiry);
+    document.getElementById('add-unit').addEventListener('click', () => addUnit());
+    document.getElementById('add-bom-row').addEventListener('click', () => {
+      const unit = Number(bomBody.lastElementChild?.querySelector('[data-bom-field="unit"]')?.value) || 1;
+      const no = [...bomBody.rows].filter(row => Number(row.querySelector('[data-bom-field="unit"]').value) === unit).length + 1;
+      addBomRow({ unit, no });
+    });
+    document.getElementById('add-history-row').addEventListener('click', () => addHistoryRow());
+    document.getElementById('photo-file').addEventListener('change', async event => {
+      const files = [...event.target.files];
+      event.target.value = '';
+      if (!files.length) return;
+      const available = 8 - attachedPhotos.length;
+      if (available <= 0) {
+        document.getElementById('save-status').textContent = '사진은 최대 8장까지 첨부할 수 있습니다';
+        return;
+      }
+      let message = '';
+      for (const file of files.slice(0, available)) {
+        if (!file.type.startsWith('image/')) { message = '이미지 파일만 첨부할 수 있습니다'; continue; }
+        if (file.size > 15 * 1024 * 1024) { message = '15MB 이하의 사진만 첨부할 수 있습니다'; continue; }
+        try {
+          const photo = await compressPhoto(file);
+          const currentSize = attachedPhotos.reduce((total, item) => total + item.data.length * 2, 0);
+          if (currentSize + photo.data.length * 2 > 3 * 1024 * 1024) { message = '저장 용량을 위해 사진 수나 크기를 줄여 주세요'; continue; }
+          attachedPhotos.push(photo);
+        } catch (error) {
+          message = error.message || '사진을 추가하지 못했습니다';
+        }
+      }
+      renderPhotos();
+      document.getElementById('save-status').textContent = message || `${attachedPhotos.length} photos attached`;
+    });
+    document.getElementById('photo-preview').addEventListener('click', event => {
+      const remove = event.target.closest('[data-remove-photo]');
+      if (!remove) return;
+      attachedPhotos = attachedPhotos.filter(photo => photo.id !== remove.dataset.removePhoto);
+      renderPhotos();
+    });
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      unitList.querySelectorAll('.unit-card').forEach(updateAxisState);
+      if (!form.checkValidity()) {
+        form.classList.add('has-invalid');
+        const invalid = form.querySelector(':invalid');
+        if (invalid?.closest('#inquiry-page')) showPage('inquiry');
+        invalid?.reportValidity();
+        document.getElementById('save-status').textContent = '필수 항목을 입력해 주세요';
+        return;
+      }
+      try {
+        form.classList.remove('has-invalid');
+        const inquiry = collectWorkspace();
+        const records = readSavedInquiries();
+        records[inquiry.recordName] = inquiry;
+        localStorage.setItem(recordsStorageKey, JSON.stringify(records));
+        localStorage.setItem(storageKey, inquiry.recordName);
+        renderSavedInquiries(inquiry.recordName);
+        showRecordName(inquiry.recordName);
+        document.getElementById('save-status').textContent = `Saved ${inquiry.recordName || new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+      } catch {
+        document.getElementById('save-status').textContent = '저장 공간을 확인해 주세요';
+      }
+    });
+
+    try {
+      const selectedName = migrateLegacyInquiry();
+      const records = readSavedInquiries();
+      renderSavedInquiries(selectedName);
+      if (records[selectedName]) restoreWorkspace(records[selectedName]);
+    } catch {
+      renderSavedInquiries();
+    }
+  </script>
+</body>
+</html>
