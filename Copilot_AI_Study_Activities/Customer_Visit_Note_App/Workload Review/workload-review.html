@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 Workload Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #202c2b;
+      --muted: #737f7b;
+      --line: #dce2dd;
+      --paper: #f2f4ef;
+      --panel: #fbfcf9;
+      --green: #147a62;
+      --lime: #c4d94b;
+      --blue: #3978a8;
+      --orange: #d87742;
+      --red: #b84d4a;
+      --mono: "IBM Plex Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: var(--paper); font-family: Manrope, "Noto Sans KR", sans-serif; }
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: radial-gradient(ellipse at 4% 0%, rgba(196,217,75,.14), transparent 34%), repeating-linear-gradient(135deg, rgba(32,44,43,.018) 0 1px, transparent 1px 8px); pointer-events: none; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .app { width: min(1560px, calc(100% - 48px)); margin: 0 auto; padding: 20px 0 28px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; min-height: 48px; margin-bottom: 17px; }
+    .brand { display: flex; align-items: center; gap: 11px; white-space: nowrap; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; color: var(--ink); background: var(--lime); font: 600 14px var(--mono); }
+    .brand-name { font-size: .92rem; font-weight: 800; }
+    .brand-year { margin-left: 7px; color: var(--muted); font: 500 .68rem var(--mono); }
+    .nav { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); background: rgba(251,252,249,.75); }
+    .nav button { min-height: 34px; padding: 0 14px; border: 0; background: transparent; color: var(--muted); font-size: .76rem; font-weight: 700; cursor: pointer; }
+    .nav button[aria-current="page"] { color: #fff; background: var(--ink); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .chart-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+    .chart-panel { min-width: 0; height: min(78vh, 760px); min-height: 440px; padding: 18px 18px 15px; border: 1px solid var(--line); background: var(--panel); }
+    .chart-panel canvas { width: 100% !important; height: 100% !important; }
+    .input-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 14px; }
+    .input-toolbar h1 { margin: 0; font-size: 1.02rem; }
+    .input-actions { display: flex; gap: 8px; align-items: center; }
+    .save-state { color: var(--muted); font: .68rem var(--mono); }
+    .source-link { color: var(--muted); font-size: .72rem; font-weight: 700; text-decoration: none; }
+    .source-link:hover { color: var(--green); text-decoration: underline; }
+    .import-button { min-height: 34px; padding: 0 11px; border: 1px solid var(--green); color: #fff; background: var(--green); font-size: .72rem; font-weight: 700; cursor: pointer; }
+    .reset-button { min-height: 34px; padding: 0 11px; border: 1px solid var(--line); background: var(--panel); font-size: .72rem; font-weight: 700; cursor: pointer; }
+    .input-section { margin-top: 12px; border-top: 2px solid var(--ink); }
+    .input-section h2 { display: flex; align-items: baseline; gap: 9px; margin: 0; padding: 11px 2px 9px; font-size: .82rem; }
+    .input-section h2 span { color: var(--muted); font: 500 .64rem var(--mono); }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--line); background: rgba(251,252,249,.8); }
+    table { width: 100%; min-width: 1010px; border-collapse: collapse; font-size: .7rem; }
+    th, td { padding: 5px 6px; border-bottom: 1px solid #e9ede8; text-align: right; white-space: nowrap; }
+    thead th { position: sticky; top: 0; z-index: 1; color: var(--muted); background: #e9eee8; font: 500 .62rem var(--mono); }
+    th:first-child, td:first-child { position: sticky; left: 0; z-index: 2; min-width: 225px; text-align: left; }
+    thead th:first-child { z-index: 3; background: #e9eee8; }
+    tbody th { color: #34413d; background: var(--panel); font-weight: 600; }
+    tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+    td input { width: 75px; height: 29px; padding: 4px 6px; border: 1px solid transparent; border-radius: 0; outline: 0; color: var(--ink); background: transparent; text-align: right; font: 500 .68rem var(--mono); }
+    td input:hover { border-color: #c8d1ca; }
+    td input:focus { border-color: var(--green); background: white; box-shadow: 0 0 0 2px rgba(20,122,98,.12); }
+    .unit { display: inline-block; margin-left: 4px; color: var(--muted); font: 400 .58rem var(--mono); }
+    .people-table { width: min(620px, 100%); min-width: 480px; }
+    .people-table th:first-child, .people-table td:first-child { min-width: 180px; }
+    .people-table td input { width: 115px; }
+    .people-table thead th:first-child, .people-table tbody th { position: static; }
+    @media (max-width: 900px) {
+      .app { width: min(100% - 28px, 680px); padding-top: 13px; }
+      .topbar { align-items: flex-start; flex-wrap: wrap; margin-bottom: 12px; }
+      .nav { order: 2; width: 100%; }
+      .nav button { flex: 1; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .chart-panel { height: 62vh; min-height: 390px; }
+      .input-toolbar { align-items: flex-start; }
+      .save-state { display: none; }
+    }
+    @media (max-width: 480px) {
+      .app { width: calc(100% - 20px); }
+      .brand-name { font-size: .82rem; }
+      .chart-panel { height: 58vh; min-height: 350px; padding: 10px; }
+      .input-toolbar h1 { font-size: .9rem; }
+      .input-section h2 { font-size: .76rem; }
+      th:first-child, td:first-child { min-width: 190px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">WR</span><span class="brand-name">Workload Review<span class="brand-year">2026</span></span></div>
+      <nav class="nav" aria-label="페이지 선택">
+        <button type="button" data-view="charts" aria-current="page">Charts</button>
+        <button type="button" data-view="inputs">Input Data</button>
+      </nav>
+    </header>
+
+    <section class="view active" id="charts-view" aria-label="월별 그래프">
+      <div class="chart-grid">
+        <div class="chart-panel"><canvas id="activity-chart" aria-label="월별 실적 및 수량 차트"></canvas></div>
+        <div class="chart-panel"><canvas id="workload-chart" aria-label="월별 엔지니어링 공수 차트"></canvas></div>
+      </div>
+    </section>
+
+    <section class="view" id="inputs-view" aria-label="입력 데이터">
+      <div class="input-toolbar">
+        <h1>Input Data</h1>
+        <div class="input-actions"><span class="save-state" id="save-state" aria-live="polite">브라우저에 저장됨</span><a class="source-link" href="./2026%20Workload%20review_Final.xlsx" download>Excel 원본</a><button type="button" class="import-button" id="import-workbook-button">엑셀 적용</button><button type="button" class="reset-button" id="reset-button">Reset</button></div>
+      </div>
+      <section class="input-section">
+        <h2>Commercial Overview <span>MKRW</span></h2>
+        <div class="table-scroll" id="commercial-inputs"></div>
+      </section>
+      <section class="input-section">
+        <h2>Engineering Information <span>EA</span></h2>
+        <div class="table-scroll" id="quantity-inputs"></div>
+      </section>
+      <section class="input-section">
+        <h2>Engineering Man-hours <span>MH</span></h2>
+        <div class="table-scroll" id="hours-inputs"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const makeSeries = values => [...values, ...Array(12 - values.length).fill(null)];
+    const definitions = {
+      commercial: [
+        { id: 'quotedVolume', label: 'CS quoted volume (VCC6,8)', unit: 'MKRW', values: [931.42877, 139.53982029, 659.38147, 672.906171, 492.83269, 694.35186, 769.82548, 254.61706, 319.25582] },
+        { id: 'techTurnoverAll', label: 'Tech - ISM CS Turnover (ALL)', unit: 'MKRW', values: [979.48603, 2767.78992, 2747.09861, 2092.932937, 2359.640798, 2334.16188, 2448.388688, 2501.783334, 2726.83637] },
+        { id: 'techTurnover', label: 'Tech - ISM CS Turnover (VCC6,8)', unit: 'MKRW', values: [472.31644, 868.40377, 1031.837, 490.6383, 1200.69505, 1217.50317, 739.960038, 948.66442, 1097.07001] },
+        { id: 'openOrder', label: 'Tech - ISM CS Open order (VCC6,8)', unit: 'MKRW', values: [2346.1297, 2040.99057, 3150.58169, 3081.15867, 2722.92398, 2168.133094, 2702.145508, 2598.722148, 1826.714726] },
+        { id: 'eaTurnover', label: 'EA Turnover (ALL)', unit: 'MKRW', values: [604, 664, 807, 911.013644, 1423.710682, 1692.040095, 1221.596285, 720.329074, 1460.357267] },
+        { id: 'eaCsTurnover', label: 'EA CS Turnover (VCC6,8)', unit: 'MKRW', values: [44.35622, 458.32882, 154.25544, 68.65072, 655.14223, 797.0661, 298.68062, 104.36453, 447.48191] }
+      ],
+      quantities: [
+        { id: 'newDrawing', label: 'Qty of New Order Drawing PJT (EA)', unit: 'EA', values: [91, 146, 211, 115, 61, 90, 179, 162, 19] },
+        { id: 'revisionDrawing', label: 'Qty of Rev. Order Drawing of PJT (EA)', unit: 'EA', values: [34, 6, 243, 50, 26, 36, 110, 79, 64] },
+        { id: 'pnaDrawing', label: 'Qty of Drawing (PNA/SEMI)', unit: 'EA', values: [null, null, null, null, null, null, 9, 2, 0, 0] },
+        { id: 'quotationCount', label: 'Qty of Quotation (EA)', unit: 'EA', values: [23, 21, 32, 39, 14, 44, 35, 24, 23] }
+      ],
+      hours: [
+        { id: 'quotationHours', label: 'Quotation MH (EA)', unit: 'MH', values: [22.4, 13.5, 26, 28.7, 9, 52, 29, 25, 27] },
+        { id: 'quotationOtherHours', label: 'Quotation MH (PNA/PI/SEMI)', unit: 'MH', values: [1.6, 0.5, 1, 1.7, 0.2, 1.5, 2, 2, 2.6] },
+        { id: 'orderDrawingHours', label: 'Order Drawing MH (EA)', unit: 'MH', values: [93, 128, 257, 151, 141, 235.5, 265, 206.5, 129.5] },
+        { id: 'orderDrawingOtherHours', label: 'Order Drawing MH (PNA/PI/SEMI)', unit: 'MH', values: [6, 3, 23, 86, 54, 37, 18, 0, 0] },
+        { id: 'proposalHours', label: 'Proposal MH', unit: 'MH', values: [4, 28, 49, 36, 23, 10, 53, 60, 79] },
+        { id: 'executionHours', label: 'Execution MH (EA)', unit: 'MH', values: [128, 145, 150, 169, 133, 172, 145, 129, 144] },
+        { id: 'executionOtherHours', label: 'Execution MH (PNA/PI/SEMI)', unit: 'MH', values: [97, 76, 92, 46, 38, 90, 106.5, 105, 82.7] },
+        { id: 'supportHours', label: 'Technical support (CSCONS)', unit: 'MH', values: [107.3, 70.3, 73.8, 122.5, 92.5, 77.5, 53, 71, 107.5] },
+        { id: 'otherHours', label: 'Others (CSORG)', unit: 'MH', values: [106.5, 126.9, 107.5, 141.5, 113, 141.5, 117, 150.5, 154.5] },
+        { id: 'vacationHours', label: 'Vacation', unit: 'MH', values: [144, 216, 128, 88, 232, 64, 148, 96, 160] }
+      ]
+    };
+    const storageKey = 'workload-review-2026';
+    const cloneDefaults = () => Object.fromEntries(Object.values(definitions).flat().map(item => [item.id, makeSeries(item.values)]));
+    const defaults = cloneDefaults();
+    let data = loadData();
+    let activityChart;
+    let workloadChart;
+
+    function loadData() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey));
+        return saved ? { ...cloneDefaults(), ...saved } : cloneDefaults();
+      } catch { return cloneDefaults(); }
+    }
+
+    function buildTable(containerId, rows, isMonthly = true) {
+      const table = document.createElement('table');
+      if (!isMonthly) table.className = 'people-table';
+      const head = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      const first = document.createElement('th');
+      first.textContent = 'Input';
+      headRow.append(first);
+      (isMonthly ? months : ['Value']).forEach(month => {
+        const cell = document.createElement('th');
+        cell.textContent = month;
+        headRow.append(cell);
+      });
+      head.append(headRow);
+      const body = document.createElement('tbody');
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        const label = document.createElement('th');
+        label.scope = 'row';
+        label.textContent = row.label;
+        const unit = document.createElement('span');
+        unit.className = 'unit';
+        unit.textContent = row.unit;
+        label.append(unit);
+        tr.append(label);
+        const values = isMonthly ? data[row.id] : [data[row.id][0]];
+        values.forEach((value, index) => {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.step = 'any';
+          input.value = value ?? '';
+          input.setAttribute('aria-label', `${row.label}, ${isMonthly ? months[index] : 'Value'}`);
+          input.dataset.series = row.id;
+          input.dataset.index = index;
+          input.addEventListener('input', () => {
+            data[row.id][index] = input.value === '' ? null : Number(input.value);
+            updateCharts();
+            saveData();
+          });
+          td.append(input);
+          tr.append(td);
+        });
+        body.append(tr);
+      });
+      table.append(head, body);
+      document.getElementById(containerId).replaceChildren(table);
+    }
+
+    function buildInputs() {
+      buildTable('commercial-inputs', definitions.commercial);
+      buildTable('quantity-inputs', definitions.quantities);
+      buildTable('hours-inputs', definitions.hours);
+    }
+
+    function readExcelNumber(sheet, address) {
+      const raw = sheet[address]?.v;
+      if (raw === null || raw === undefined || raw === '') return null;
+      const number = Number(raw);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function readExcelMonths(sheet, row, divisor = 1) {
+      return Array.from({ length: 12 }, (_, month) => {
+        const raw = readExcelNumber(sheet, XLSX.utils.encode_cell({ r: row - 1, c: month + 1 }));
+        return raw === null ? null : raw / divisor;
+      });
+    }
+
+    function mapWorkbook(workbook) {
+      const overview = workbook.Sheets['2026 Overview'];
+      if (!overview) throw new Error('2026 Overview 시트를 찾을 수 없습니다.');
+      const imported = {
+        quotedVolume: readExcelMonths(overview, 3, 1000000),
+        techTurnoverAll: readExcelMonths(overview, 4, 1000000),
+        techTurnover: readExcelMonths(overview, 5, 1000000),
+        openOrder: readExcelMonths(overview, 6, 1000000),
+        eaTurnover: readExcelMonths(overview, 15),
+        eaCsTurnover: readExcelMonths(overview, 8, 1000000),
+        newDrawing: readExcelMonths(overview, 21),
+        revisionDrawing: readExcelMonths(overview, 22),
+        pnaDrawing: readExcelMonths(overview, 23),
+        quotationCount: readExcelMonths(overview, 24),
+        quotationHours: readExcelMonths(overview, 28),
+        quotationOtherHours: readExcelMonths(overview, 29),
+        orderDrawingHours: readExcelMonths(overview, 30),
+        orderDrawingOtherHours: readExcelMonths(overview, 31),
+        proposalHours: readExcelMonths(overview, 32),
+        executionHours: readExcelMonths(overview, 33),
+        executionOtherHours: readExcelMonths(overview, 34),
+        supportHours: readExcelMonths(overview, 35),
+        otherHours: readExcelMonths(overview, 36),
+        vacationHours: readExcelMonths(overview, 37)
+      };
+      return imported;
+    }
+
+    async function applySharedWorkbook() {
+      const status = document.getElementById('save-state');
+      const button = document.getElementById('import-workbook-button');
+      button.disabled = true;
+      status.textContent = '엑셀 읽는 중';
+      try {
+        const workbookUrl = new URL('./2026%20Workload%20review_Final.xlsx', window.location.href);
+        workbookUrl.searchParams.set('refresh', Date.now().toString());
+        const response = await fetch(workbookUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error('공유 엑셀 파일을 찾을 수 없습니다.');
+        const workbook = XLSX.read(await response.arrayBuffer(), { type: 'array' });
+        data = { ...cloneDefaults(), ...mapWorkbook(workbook) };
+        buildInputs();
+        updateCharts();
+        saveData();
+        status.textContent = '최신 엑셀 적용 완료';
+      } catch (error) {
+        status.textContent = error.message || '엑셀을 적용하지 못했습니다.';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function value(id, index) { return data[id][index] ?? null; }
+    function derived(index) {
+      const sum = ids => {
+        const values = ids.map(id => value(id, index));
+        return values.some(item => item === null) ? null : values.reduce((total, item) => total + item, 0);
+      };
+      const actualHours = sum(['quotationHours', 'quotationOtherHours', 'orderDrawingHours', 'orderDrawingOtherHours', 'proposalHours', 'executionHours', 'executionOtherHours', 'supportHours']);
+      const totalEaHours = sum(['quotationHours', 'orderDrawingHours', 'proposalHours', 'executionHours']);
+      const drawingCount = sum(['newDrawing', 'revisionDrawing']);
+      const orderHours = sum(['orderDrawingHours', 'proposalHours']);
+      const execDenominator = sum(['techTurnover', 'executionOtherHours']);
+      return {
+        totalEaHours,
+        actualHours,
+        quotePer: value('quotationCount', index) && value('quotationHours', index) !== null ? value('quotationHours', index) / value('quotationCount', index) : null,
+        drawingPer: orderHours && drawingCount !== null ? drawingCount / orderHours : null,
+        executionPer: execDenominator && value('executionHours', index) !== null ? value('executionHours', index) / execDenominator : null,
+        workload: actualHours && totalEaHours !== null ? totalEaHours / actualHours : null
+      };
+    }
+
+    const colors = { green: '#147a62', lime: '#a8bd32', blue: '#3978a8', orange: '#d87742', red: '#b84d4a', dark: '#263b39' };
+    function chartOptions(title, leftTitle, rightTitle) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          title: { display: true, text: title, align: 'start', color: '#202c2b', font: { family: 'Manrope, sans-serif', size: 15, weight: '700' }, padding: { bottom: 18 } },
+          legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, boxHeight: 7, padding: 12, color: '#52605b', font: { family: 'Manrope, sans-serif', size: 10 } } },
+          tooltip: { backgroundColor: '#202c2b', padding: 10, titleFont: { family: 'IBM Plex Mono, monospace' }, bodyFont: { family: 'IBM Plex Mono, monospace' } },
+          datalabels: {
+            display: context => context.dataset?.data?.[context.dataIndex] !== null && context.dataset?.data?.[context.dataIndex] !== undefined,
+            anchor: 'end',
+            align: 'top',
+            offset: 3,
+            clamp: true,
+            color: context => context.dataset.type === 'line' ? context.dataset.borderColor : '#fff',
+            backgroundColor: context => context.dataset.type === 'line' ? 'rgba(251,252,249,.84)' : null,
+            textStrokeColor: context => context.dataset.type === 'line' ? '#fbfcf9' : '#263b39',
+            textStrokeWidth: 2,
+            borderRadius: 2,
+            padding: { top: 1, bottom: 1, left: 2, right: 2 },
+            font: { family: 'IBM Plex Mono, monospace', size: 8, weight: '600' },
+            formatter: (value, context) => context.dataset.label === 'PJT workload'
+              ? `${(value * 100).toFixed(1)}%`
+              : Number(value).toLocaleString('ko-KR', { maximumFractionDigits: 2 })
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#737f7b', font: { family: 'IBM Plex Mono, monospace', size: 9 } } },
+          y: { beginAtZero: true, title: { display: true, text: leftTitle, color: '#737f7b', font: { size: 9 } }, grid: { color: '#e8ece7' }, ticks: { color: '#737f7b', font: { family: 'IBM Plex Mono, monospace', size: 9 } } },
+          y1: { beginAtZero: true, position: 'right', title: { display: true, text: rightTitle, color: '#737f7b', font: { size: 9 } }, grid: { drawOnChartArea: false }, ticks: { color: '#737f7b', font: { family: 'IBM Plex Mono, monospace', size: 9 } } }
+        }
+      };
+    }
+
+    function initCharts() {
+      activityChart = new Chart(document.getElementById('activity-chart'), {
+        type: 'bar',
+        data: { labels: months, datasets: [
+          { label: 'New order drawing', data: [], backgroundColor: colors.green, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#fff' } },
+          { label: 'Rev. order drawing', data: [], backgroundColor: colors.lime, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#202c2b', textStrokeColor: '#fbfcf9' } },
+          { label: 'Quotation', data: [], backgroundColor: colors.orange, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#fff' } },
+          { type: 'line', label: 'Quoted volume', data: [], borderColor: colors.dark, backgroundColor: colors.dark, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'top', offset: 5 } },
+          { type: 'line', label: 'Tech ISM CS turnover', data: [], borderColor: colors.blue, backgroundColor: colors.blue, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'bottom', offset: 6 } },
+          { type: 'line', label: 'Tech ISM CS open order', data: [], borderColor: colors.red, backgroundColor: colors.red, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'top', offset: 10 } }
+        ] },
+        options: chartOptions('Monthly commercial & engineering activity', 'Quantity (EA)', 'Value (MKRW)')
+      });
+      workloadChart = new Chart(document.getElementById('workload-chart'), {
+        type: 'bar',
+        data: { labels: months, datasets: [
+          { label: 'Order drawing MH (EA)', data: [], backgroundColor: colors.green, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#fff' } },
+          { label: 'Execution MH (EA)', data: [], backgroundColor: colors.blue, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#fff' } },
+          { label: 'Total MH (EA)', data: [], backgroundColor: colors.orange, yAxisID: 'y', order: 3, datalabels: { anchor: 'end', align: 'start', offset: 2, color: '#fff' } },
+          { type: 'line', label: 'MH per quotation', data: [], borderColor: colors.dark, backgroundColor: colors.dark, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'top', offset: 5 } },
+          { type: 'line', label: 'MH per order drawing', data: [], borderColor: colors.red, backgroundColor: colors.red, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'bottom', offset: 6 } },
+          { type: 'line', label: 'MH per execution', data: [], borderColor: colors.blue, backgroundColor: colors.blue, pointRadius: 2, borderWidth: 2, tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'top', offset: 10 } },
+          { type: 'line', label: 'PJT workload', data: [], borderColor: '#839921', backgroundColor: '#839921', pointRadius: 2, borderWidth: 2, borderDash: [5, 3], tension: .25, yAxisID: 'y1', order: 1, datalabels: { align: 'bottom', offset: 12 } }
+        ] },
+        options: chartOptions('Monthly engineering workload', 'Man-hours (MH)', 'Workload ratio')
+      });
+      updateCharts();
+    }
+
+    function updateCharts() {
+      if (!activityChart || !workloadChart) return;
+      activityChart.data.datasets[0].data = data.newDrawing;
+      activityChart.data.datasets[1].data = data.revisionDrawing;
+      activityChart.data.datasets[2].data = data.quotationCount;
+      activityChart.data.datasets[3].data = data.quotedVolume;
+      activityChart.data.datasets[4].data = data.techTurnover;
+      activityChart.data.datasets[5].data = data.openOrder;
+      activityChart.update('none');
+      const ratios = months.map((_, index) => derived(index));
+      workloadChart.data.datasets[0].data = months.map((_, index) => value('orderDrawingHours', index));
+      workloadChart.data.datasets[1].data = months.map((_, index) => value('executionHours', index));
+      workloadChart.data.datasets[2].data = ratios.map(item => item.totalEaHours);
+      workloadChart.data.datasets[3].data = ratios.map(item => item.quotePer);
+      workloadChart.data.datasets[4].data = ratios.map(item => item.drawingPer);
+      workloadChart.data.datasets[5].data = ratios.map(item => item.executionPer);
+      workloadChart.data.datasets[6].data = ratios.map(item => item.workload);
+      workloadChart.update('none');
+    }
+
+    function saveData() {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      document.getElementById('save-state').textContent = 'Saved';
+    }
+
+    document.querySelectorAll('.nav button').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.nav button').forEach(item => item.removeAttribute('aria-current'));
+      button.setAttribute('aria-current', 'page');
+      document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `${button.dataset.view}-view`));
+      if (button.dataset.view === 'charts') { activityChart.resize(); workloadChart.resize(); }
+    }));
+    document.getElementById('reset-button').addEventListener('click', () => {
+      data = cloneDefaults();
+      localStorage.removeItem(storageKey);
+      buildInputs();
+      updateCharts();
+      document.getElementById('save-state').textContent = '기본값으로 복원됨';
+    });
+    document.getElementById('import-workbook-button').addEventListener('click', applySharedWorkbook);
+    buildInputs();
+    if (window.Chart && window.ChartDataLabels) { Chart.register(ChartDataLabels); initCharts(); }
+    else document.querySelectorAll('.chart-panel').forEach(panel => { panel.textContent = '차트 라이브러리를 불러오지 못했습니다.'; });
+  </script>
+</body>
+</html>
