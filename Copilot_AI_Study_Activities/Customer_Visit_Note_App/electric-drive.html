@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Festo E-Drive 선정</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#17232d; --muted:#6b7a82; --paper:#f3f5f2; --panel:#fff; --line:#dce4df; --green:#0b7b61; --green-dark:#075745; --mint:#dcf3e9; --amber:#c87b18; --red:#bd4f45; --shadow:0 18px 45px rgba(23,35,45,.08); }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:Manrope,"Noto Sans KR",sans-serif; }
+    body:before { content:""; position:fixed; inset:0; z-index:-1; background:radial-gradient(circle at 90% 0%,#d7eee5 0,transparent 28%),linear-gradient(125deg,#f8faf7,#edf4f0 58%,#e9f1ee); }
+    .app { width:min(1280px,calc(100% - 44px)); margin:auto; padding:28px 0 60px; }
+    header { display:flex; align-items:flex-start; justify-content:space-between; gap:22px; margin-bottom:28px; }
+    .brand { display:flex; gap:13px; align-items:center; }
+    .mark { display:grid; place-items:center; width:43px; height:43px; border-radius:13px; color:#c9f8e6; background:var(--ink); font-size:1.35rem; }
+    .brand h1 { margin:0; font-size:1.35rem; letter-spacing:-.05em; }
+    .brand p { margin:4px 0 0; color:var(--muted); font-size:.75rem; }
+    .header-actions { display:flex; gap:9px; }
+    button { border:0; font:inherit; cursor:pointer; }
+    .button { padding:11px 14px; border:1px solid var(--line); border-radius:10px; color:var(--ink); background:rgba(255,255,255,.72); font-size:.8rem; font-weight:700; }
+    .button.primary { color:white; border-color:var(--green); background:var(--green); }
+    .button.primary:hover { background:var(--green-dark); }
+    .tabs { display:flex; gap:6px; padding:5px; margin-bottom:18px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.62); width:max-content; }
+    .tab { padding:10px 17px; border-radius:9px; color:var(--muted); background:transparent; font-size:.82rem; font-weight:700; }
+    .tab.active { color:var(--green-dark); background:var(--mint); }
+    .view { display:none; }
+    .view.active { display:block; }
+    .workspace { display:grid; grid-template-columns:330px 1fr; gap:18px; align-items:start; }
+    .panel { border:1px solid rgba(255,255,255,.9); border-radius:18px; background:rgba(255,255,255,.84); box-shadow:var(--shadow); }
+    .input-panel { padding:22px; position:sticky; top:18px; }
+    .panel-title { margin:0; font-size:1rem; letter-spacing:-.03em; }
+    .panel-kicker { margin:5px 0 20px; color:var(--muted); font-size:.75rem; line-height:1.6; }
+    .field { margin-bottom:14px; }
+    .field label { display:flex; justify-content:space-between; margin-bottom:7px; color:#43535b; font-size:.74rem; font-weight:700; }
+    .unit { color:var(--muted); font: .68rem "DM Mono",monospace; font-weight:400; }
+    input, select { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; outline:0; color:var(--ink); background:#fbfcfb; font:inherit; font-size:.82rem; }
+    input:focus, select:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(11,123,97,.1); }
+    .axis-label { display:flex; align-items:center; justify-content:space-between; margin:22px 0 10px; padding-top:17px; border-top:1px solid var(--line); color:var(--green-dark); font-size:.73rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+    .axis-label span { color:var(--muted); font: .68rem "DM Mono",monospace; text-transform:none; letter-spacing:0; }
+    .check-row { display:flex; gap:8px; align-items:center; padding:10px 0 1px; color:var(--muted); font-size:.72rem; }
+    .check-row input { width:auto; accent-color:var(--green); }
+    .calc-button { width:100%; margin-top:10px; padding:13px; border-radius:10px; color:#fff; background:var(--ink); font-size:.82rem; font-weight:800; }
+    .results { min-width:0; }
+    .result-hero { display:flex; justify-content:space-between; gap:20px; align-items:end; padding:22px 24px; margin-bottom:14px; border-radius:18px; color:#fff; background:var(--ink); box-shadow:var(--shadow); }
+    .result-hero h2 { margin:6px 0 0; font-size:1.55rem; letter-spacing:-.06em; }
+    .result-hero p { margin:0; color:#a9bbb9; font-size:.75rem; }
+    .score { text-align:right; }
+    .score strong { display:block; color:#b6f1d9; font:800 2rem "DM Mono",monospace; }
+    .score span { color:#a9bbb9; font-size:.7rem; }
+    .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
+    .summary { padding:16px; border:1px solid var(--line); border-radius:13px; background:rgba(255,255,255,.72); }
+    .summary .label { color:var(--muted); font-size:.68rem; }
+    .summary strong { display:block; margin-top:7px; font:600 1.1rem "DM Mono",monospace; }
+    .summary small { color:var(--muted); font-size:.68rem; }
+    .table-panel { padding:20px; overflow:hidden; }
+    .table-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+    .table-head h3 { margin:0; font-size:.95rem; letter-spacing:-.03em; }
+    .table-head span { color:var(--muted); font-size:.7rem; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; min-width:720px; border-collapse:collapse; font-size:.76rem; }
+    th { padding:10px; color:var(--muted); border-bottom:1px solid var(--line); text-align:left; font-size:.68rem; font-weight:700; white-space:nowrap; }
+    td { padding:13px 10px; border-bottom:1px solid #edf1ee; white-space:nowrap; }
+    tr:last-child td { border-bottom:0; }
+    .product { font-weight:800; color:var(--green-dark); }
+    .sub { display:block; margin-top:3px; color:var(--muted); font-size:.66rem; font-weight:400; }
+    .badge { display:inline-flex; padding:5px 7px; border-radius:6px; font-size:.65rem; font-weight:800; }
+    .badge.ok { color:#087455; background:#dff5eb; }
+    .badge.warn { color:#9c6412; background:#fff0d2; }
+    .badge.no { color:#a33d36; background:#fbe4e1; }
+    .bar { width:90px; height:5px; overflow:hidden; border-radius:9px; background:#e5ece8; }
+    .bar i { display:block; height:100%; border-radius:inherit; background:var(--green); }
+    .empty { padding:34px; color:var(--muted); text-align:center; font-size:.8rem; }
+    .compare-top { display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:16px; }
+    .compare-top h2 { margin:0; font-size:1.35rem; letter-spacing:-.05em; }
+    .compare-top p { margin:5px 0 0; color:var(--muted); font-size:.76rem; }
+    .compare-controls { display:flex; gap:8px; align-items:center; }
+    .compare-controls select { min-width:210px; }
+    .compare-layout { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .compare-card { padding:20px; }
+    .compare-card h3 { margin:0 0 16px; font-size:.9rem; }
+    .compare-card h3 span { display:block; margin-top:4px; color:var(--muted); font: .68rem "DM Mono",monospace; }
+    .compare-list { display:grid; gap:10px; }
+    .compare-line { display:grid; grid-template-columns:1fr auto; gap:12px; padding-bottom:10px; border-bottom:1px solid #edf1ee; font-size:.76rem; }
+    .compare-line:last-child { border-bottom:0; padding-bottom:0; }
+    .compare-line span { color:var(--muted); }
+    .delta { color:var(--green-dark); font:600 .75rem "DM Mono",monospace; }
+    .delta.down { color:var(--red); }
+    .history-table { margin-top:14px; }
+    .history-table .button { padding:6px 9px; font-size:.68rem; }
+    @media (max-width:850px) { .app{width:min(100% - 28px,620px);padding-top:20px} header{display:block}.header-actions{margin-top:16px}.workspace{grid-template-columns:1fr}.input-panel{position:static}.summary-grid{grid-template-columns:repeat(2,1fr)}.compare-layout{grid-template-columns:1fr}.compare-top{display:block}.compare-controls{margin-top:14px}.compare-controls select{flex:1} }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><div class="mark">↗</div><div><h1>Festo E-Drive 선정</h1><p>Electric drive sizing workspace · Ver 15.05</p></div></div>
+      <div class="header-actions"><button class="button" id="reset-button">입력 초기화</button><button class="button primary" id="save-button">현재 선정 저장</button></div>
+    </header>
+    <nav class="tabs" aria-label="화면 선택"><button class="tab active" data-view="selector">선정 워크스페이스</button><button class="tab" data-view="compare">이전 데이터 비교</button></nav>
+
+    <section class="view active" id="selector-view">
+      <div class="workspace">
+        <form class="panel input-panel" id="selection-form">
+          <h2 class="panel-title">운전 조건 입력</h2><p class="panel-kicker">축의 요구 조건을 입력하면 원본 데이터의 정격과 비교해 적합한 제품을 정렬합니다.</p>
+          <div class="field"><label for="project">프로젝트명</label><input id="project" value="신규 E-Drive 검토" /></div>
+          <div class="field"><label for="orientation">설치 방향</label><select id="orientation"><option value="horizontal">수평</option><option value="vertical">수직 (Z축)</option></select></div>
+          <div class="axis-label">Z axis <span>Primary load</span></div>
+          <div class="field"><label for="stroke">사용 스트로크 <span class="unit">mm</span></label><input id="stroke" type="number" min="1" value="500" /></div>
+          <div class="field"><label for="payload">이동 질량 <span class="unit">kg</span></label><input id="payload" type="number" min="0" step="0.1" value="4" /></div>
+          <div class="field"><label for="speed">최대 속도 <span class="unit">m/s</span></label><input id="speed" type="number" min="0" step="0.01" value="0.5" /></div>
+          <div class="field"><label for="acceleration">최대 가속도 <span class="unit">m/s²</span></label><input id="acceleration" type="number" min="0" step="0.1" value="2" /></div>
+          <div class="field"><label for="duty">작동률 <span class="unit">%</span></label><input id="duty" type="number" min="1" max="100" value="60" /></div>
+          <label class="check-row"><input id="include-festo" type="checkbox" checked /> Festo 표준 제품 중심으로 추천</label>
+          <button class="calc-button" type="submit">선정 결과 계산</button>
+        </form>
+        <div class="results">
+          <section class="result-hero"><div><p>CALCULATION STATUS</p><h2 id="result-title">조건 입력을 기다리는 중</h2></div><div class="score"><strong id="fit-score">--%</strong><span>최적 후보 적합도</span></div></section>
+          <div class="summary-grid"><div class="summary"><div class="label">필요 추진력 Fx</div><strong id="required-force">--</strong><small>N</small></div><div class="summary"><div class="label">필요 가속 토크</div><strong id="required-torque">--</strong><small>Nm (환산)</small></div><div class="summary"><div class="label">선정 후보</div><strong id="candidate-count">--</strong><small>개 제품</small></div><div class="summary"><div class="label">예상 수명</div><strong id="life-estimate">--</strong><small>km</small></div></div>
+          <section class="panel table-panel"><div class="table-head"><h3>추천 E-Drive</h3><span id="result-note">제품 데이터 15.05 기준</span></div><div class="table-wrap"><table><thead><tr><th>제품</th><th>허용 스트로크</th><th>최대 질량</th><th>추진력</th><th>속도</th><th>부하 여유</th><th>판정</th></tr></thead><tbody id="results-body"></tbody></table></div></section>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="compare-view">
+      <div class="compare-top"><div><h2>이전 선정과 비교</h2><p>저장된 프로젝트를 불러와 입력 조건과 추천 결과의 변화를 확인합니다.</p></div><div class="compare-controls"><select id="history-select"><option value="">비교할 이전 데이터 선택</option></select><button class="button" id="clear-history">기록 삭제</button></div></div>
+      <div class="compare-layout"><section class="panel compare-card"><h3>현재 선정<span id="current-project-label">아직 계산되지 않음</span></h3><div class="compare-list" id="current-compare"></div></section><section class="panel compare-card"><h3>이전 선정<span id="previous-project-label">기록을 선택해 주세요</span></h3><div class="compare-list" id="previous-compare"><div class="empty">비교할 저장 기록이 없습니다.</div></div></section></div>
+      <section class="panel table-panel history-table"><div class="table-head"><h3>저장된 선정 기록</h3><span>브라우저에만 저장됩니다</span></div><div class="table-wrap"><table><thead><tr><th>프로젝트</th><th>저장일</th><th>축 조건</th><th>추천 제품</th><th>적합도</th><th></th></tr></thead><tbody id="history-body"></tbody></table></div></section>
+    </section>
+  </main>
+  <script>
+    const products = [
+      { name:'DGE-12-...-ZR-KF-GK', series:'볼베어링 가이드 톱니벨트축', stroke:1000, load:3, force:30, speed:1.5, accel:20, torque:.18 },
+      { name:'DGE-18-...-ZR-KF-GK', series:'볼베어링 가이드 톱니벨트축', stroke:1000, load:6, force:60, speed:2, accel:20, torque:.5 },
+      { name:'DGE-25-...-ZR-KF-GK', series:'볼베어링 가이드 톱니벨트축', stroke:3000, load:10, force:260, speed:5, accel:50, torque:2.6 },
+      { name:'DGE-40-...-ZR-KF-GK', series:'볼베어링 가이드 톱니벨트축', stroke:4000, load:25, force:610, speed:5, accel:50, torque:9.7 },
+      { name:'DGE-63-...-ZR-KF-GK', series:'볼베어링 가이드 톱니벨트축', stroke:4500, load:50, force:1500, speed:5, accel:50, torque:42 },
+      { name:'ELGT-BS-90-...10P', series:'볼베어링 가이드 스핀들 축', stroke:1000, load:12, force:1054, speed:.5, accel:15, torque:7.1 },
+      { name:'ELGT-BS-120-...20P', series:'볼베어링 가이드 스핀들 축', stroke:1100, load:20, force:805, speed:.5, accel:15, torque:12.4 },
+      { name:'ELGT-BS-160-...20P', series:'볼베어링 가이드 스핀들 축', stroke:1400, load:32, force:1045, speed:.5, accel:15, torque:19.8 }
+    ];
+    const $ = id => document.getElementById(id);
+    const historyKey = 'festo-electric-drive-history';
+    let current = null;
+    const getNumber = id => Number($(id).value) || 0;
+    const format = value => Number(value).toLocaleString('ko-KR', { maximumFractionDigits:2 });
+    function conditions() { const vertical = $('orientation').value === 'vertical'; const payload = getNumber('payload'); const acceleration = getNumber('acceleration'); return { project:$('project').value.trim() || '이름 없는 선정', orientation:$('orientation').value, stroke:getNumber('stroke'), payload, speed:getNumber('speed'), acceleration, duty:getNumber('duty'), force:payload * (acceleration + (vertical ? 9.81 : 0)), torque:payload * acceleration * .02 }; }
+    function calculate(event) { if (event) event.preventDefault(); const c = conditions(); const candidates = products.map(product => { const ratios = [c.stroke / product.stroke, c.payload / product.load, c.force / product.force, c.speed / product.speed, c.acceleration / product.accel]; const maxRatio = Math.max(...ratios); const fit = Math.max(0, Math.min(100, Math.round((1 - maxRatio) * 100))); return { ...product, ratios, fit, ok:maxRatio <= 1 }; }).filter(item => item.ok).sort((a,b) => b.fit - a.fit); const best = candidates[0] || products.map(product => ({ ...product, fit:0, ok:false })).sort((a,b) => a.stroke-b.stroke)[0]; current = { ...c, best:best.name, score:best.fit, candidateCount:candidates.length, savedAt:new Date().toISOString() }; $('result-title').textContent = candidates.length ? `${best.name} 선정 가능` : '조건에 맞는 제품 없음'; $('fit-score').textContent = `${best.fit}%`; $('required-force').textContent = format(c.force); $('required-torque').textContent = format(c.torque); $('candidate-count').textContent = candidates.length; $('life-estimate').textContent = candidates.length ? format(Math.round(5000 * Math.max(.25, 1 - c.duty / 125))) : '--'; $('results-body').innerHTML = candidates.length ? candidates.map(item => { const margin = Math.round((1 - Math.max(...item.ratios)) * 100); return `<tr><td><span class="product">${item.name}</span><span class="sub">${item.series}</span></td><td>${format(item.stroke)} mm</td><td>${format(item.load)} kg</td><td>${format(item.force)} N</td><td>${format(item.speed)} m/s</td><td><div class="bar"><i style="width:${Math.max(3,Math.min(100,margin))}%"></i></div><span class="sub">${margin}% 여유</span></td><td><span class="badge ${item.fit > 35 ? 'ok' : 'warn'}">${item.fit > 35 ? '추천' : '검토'}</span></td></tr>`; }).join('') : `<tr><td colspan="7" class="empty">입력 조건을 낮추거나 다른 설치 방향을 선택해 주세요.</td></tr>`; renderCompare(); }
+    function records() { return JSON.parse(localStorage.getItem(historyKey) || '[]'); }
+    function saveCurrent() { if (!current) { calculate(); } const list = records(); list.unshift(current); localStorage.setItem(historyKey, JSON.stringify(list.slice(0,12))); renderHistory(); $('save-button').textContent = '저장 완료'; setTimeout(() => $('save-button').textContent = '현재 선정 저장', 1300); }
+    function renderCompare() { const c = current; $('current-project-label').textContent = c ? `${c.project} · ${new Date(c.savedAt).toLocaleString('ko-KR')}` : '아직 계산되지 않음'; $('current-compare').innerHTML = c ? compareLines(c, null) : '<div class="empty">먼저 선정 결과를 계산해 주세요.</div>'; }
+    function compareLines(c, previous) { const fields = [['스트로크',c.stroke,'mm'],['이동 질량',c.payload,'kg'],['최대 속도',c.speed,'m/s'],['최대 가속도',c.acceleration,'m/s²'],['필요 추진력',c.force,'N'],['추천 제품',c.best,''],['적합도',`${c.score}%`,'']]; return fields.map(([label,value,unit],i) => { let delta=''; if (previous && typeof value === 'number' && typeof previous[['stroke','payload','speed','acceleration','force'][i]] === 'number') { const old=previous[['stroke','payload','speed','acceleration','force'][i]]; const diff=value-old; delta=`<b class="delta ${diff < 0 ? 'down' : ''}">${diff > 0 ? '+' : ''}${format(diff)}</b>`; } return `<div class="compare-line"><span>${label}</span><strong>${typeof value === 'number' ? format(value) : value} ${unit} ${delta}</strong></div>`; }).join(''); }
+    function renderHistory() { const list=records(); $('history-select').innerHTML='<option value="">비교할 이전 데이터 선택</option>'+list.map((item,i)=>`<option value="${i}">${item.project} · ${new Date(item.savedAt).toLocaleDateString('ko-KR')}</option>`).join(''); $('history-body').innerHTML=list.length ? list.map((item,i)=>`<tr><td><b>${item.project}</b></td><td>${new Date(item.savedAt).toLocaleString('ko-KR')}</td><td>${item.stroke} mm · ${item.payload} kg</td><td>${item.best}</td><td><span class="badge ${item.score > 35 ? 'ok' : 'warn'}">${item.score}%</span></td><td><button class="button" data-record="${i}">비교</button></td></tr>`).join('') : '<tr><td colspan="6" class="empty">저장된 선정 기록이 없습니다.</td></tr>'; }
+    function selectPrevious(index) { const previous=records()[Number(index)]; if (!previous) { $('previous-project-label').textContent='기록을 선택해 주세요'; $('previous-compare').innerHTML='<div class="empty">비교할 저장 기록이 없습니다.</div>'; return; } $('previous-project-label').textContent=`${previous.project} · ${new Date(previous.savedAt).toLocaleString('ko-KR')}`; $('previous-compare').innerHTML=compareLines(previous, current); }
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.tab,.view').forEach(item => item.classList.remove('active')); tab.classList.add('active'); $(`${tab.dataset.view}-view`).classList.add('active'); renderHistory(); }));
+    $('selection-form').addEventListener('submit', calculate); $('save-button').addEventListener('click', saveCurrent); $('history-select').addEventListener('change', event => selectPrevious(event.target.value)); $('clear-history').addEventListener('click', () => { localStorage.removeItem(historyKey); renderHistory(); selectPrevious(''); }); $('history-body').addEventListener('click', event => { const button=event.target.closest('[data-record]'); if (!button) return; document.querySelector('[data-view="compare"]').click(); $('history-select').value=button.dataset.record; selectPrevious(button.dataset.record); }); $('reset-button').addEventListener('click', () => { $('selection-form').reset(); calculate(); });
+    calculate(); renderHistory();
+  </script>
+</body>
+</html>
